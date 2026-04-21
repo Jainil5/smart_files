@@ -134,10 +134,6 @@ def add_file_to_db(file_id, file_name, file_type,
 
 # ------------------ FETCH ALL FILES ------------------ #
 def get_all_files_from_db():
-    """
-    Queries the index_collection, converts ObjectIds and datetimes to strings,
-    and returns a list of dictionaries.
-    """
     try:
         # Fetch all documents from the correct collection (index_collection)
         files_cursor = index_collection.find({"is_latest": True})
@@ -176,17 +172,3 @@ def hosted_from_local(local_path: str):
 def get_versions(file_id: str):
     files = list(index_collection.find({"file_id": file_id}).sort("version", 1))
     return files if files else []
-
-def update_file_hosted_link(local_path: str, new_link: str, platform: str = "aws"):
-    """
-    Updates the hosted_link and source_platform for ALL versions of a specific file path.
-    """
-    try:
-        result = index_collection.update_many(
-            {"local_path": local_path},
-            {"$set": {"hosted_link": new_link, "source_platform": platform}}
-        )
-        return result.modified_count
-    except Exception as e:
-        print(f"Update error: {e}")
-        return 0
