@@ -18,3 +18,4 @@ streamlit
 watchdog
 fastapi
 python-dotenv
+dvc
