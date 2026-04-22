@@ -1,5 +1,8 @@
 import mlflow
-from .main_agent import bot
+try:
+    from main_agent import bot
+except ImportError:
+    from .main_agent import bot
 
 def evaluate():
     queries = [

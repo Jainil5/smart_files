@@ -6,7 +6,10 @@ from services.main_agent import bot
 from services.new_link import process_link_api
 from services.main_db import get_all_files_from_db
 from services.embedder import embed_file
+from services.logger import get_logger
 from fastapi.staticfiles import StaticFiles
+
+logger = get_logger("app_main")
 
 app = FastAPI(title="AI File System API")
 
@@ -21,12 +24,6 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
 app.mount("/logs", StaticFiles(directory=LOG_DIR), name="logs")
-
-logging.basicConfig(
-    filename=os.path.join(LOG_DIR, "app.log"),
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
 
 CSV_FILE = os.path.join(LOG_DIR, "api_logs.csv")
 
@@ -60,7 +57,7 @@ class QueryRequest(BaseModel):
 def upload_file(req: UploadRequest):
     start = time.time()
     try:
-        logging.info(f"/upload called | path={req.path}")
+        logger.info(f"/upload called | path={req.path}")
 
         result = process_link_api(req.path)
         upload_result = result.get("data", {}).get("upload_result")
@@ -70,14 +67,14 @@ def upload_file(req: UploadRequest):
             embed_file(local_path)
 
         latency = time.time() - start
-        logging.info(f"/upload success | latency={latency}")
+        logger.info(f"/upload success | latency={latency}")
         log_to_csv("/upload", "success", latency, str(upload_result))
 
         return result
 
     except Exception as e:
         latency = time.time() - start
-        logging.error(f"/upload error | {str(e)}")
+        logger.error(f"/upload error | {str(e)}")
         log_to_csv("/upload", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -86,7 +83,7 @@ def upload_file(req: UploadRequest):
 async def upload_physical_file(file: UploadFile = File(...)):
     start = time.time()
     try:
-        logging.info(f"/upload-file called | filename={file.filename}")
+        logger.info(f"/upload-file called | filename={file.filename}")
 
         save_path = os.path.join(DOCS_DIR, file.filename)
 
@@ -100,14 +97,14 @@ async def upload_physical_file(file: UploadFile = File(...)):
             embed_file(save_path)
 
         latency = time.time() - start
-        logging.info(f"/upload-file success | latency={latency}")
+        logger.info(f"/upload-file success | latency={latency}")
         log_to_csv("/upload-file", "success", latency, file.filename)
 
         return result
 
     except Exception as e:
         latency = time.time() - start
-        logging.error(f"/upload-file error | {str(e)}")
+        logger.error(f"/upload-file error | {str(e)}")
         log_to_csv("/upload-file", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -116,12 +113,12 @@ async def upload_physical_file(file: UploadFile = File(...)):
 def query_agent(req: QueryRequest):
     start = time.time()
     try:
-        logging.info(f"/query called | query={req.query}")
+        logger.info(f"/query called | query={req.query}")
 
         res = bot(req.query)
 
         latency = time.time() - start
-        logging.info(f"/query success | latency={latency}")
+        logger.info(f"/query success | latency={latency}")
         log_to_csv("/query", "success", latency, req.query)
 
         return {
@@ -131,7 +128,7 @@ def query_agent(req: QueryRequest):
 
     except Exception as e:
         latency = time.time() - start
-        logging.error(f"/query error | {str(e)}")
+        logger.error(f"/query error | {str(e)}")
         log_to_csv("/query", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -140,12 +137,12 @@ def query_agent(req: QueryRequest):
 async def fetch_files():
     start = time.time()
     try:
-        logging.info("/files called")
+        logger.info("/files called")
 
         result = get_all_files_from_db()
 
         latency = time.time() - start
-        logging.info(f"/files success | latency={latency}")
+        logger.info(f"/files success | latency={latency}")
         log_to_csv("/files", "success", latency)
 
         return {
@@ -155,7 +152,7 @@ async def fetch_files():
 
     except Exception as e:
         latency = time.time() - start
-        logging.error(f"/files error | {str(e)}")
+        logger.error(f"/files error | {str(e)}")
         log_to_csv("/files", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 

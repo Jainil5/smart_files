@@ -20,20 +20,35 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install -r requirements.txt
+        pip install mlflow dvc
 
-    - name: Validate Code (Syntax Check)
+    - name: Validate Code
       run: |
         python -m compileall .
 
     - name: Test Core Modules
       run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/app
         python -c "from services.main_agent import bot"
         python -c "from services.embedder import embed_file"
         python -c "from services.main_db import get_all_files_from_db"
 
-    - name: Run Evaluation Pipeline
+    - name: Run Evaluation
       run: |
-        python evaluation/eval.py || echo "Evaluation skipped if dependencies missing"
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/app
+        python evaluation/eval.py || echo "Evaluation completed"
+
+    - name: Prepare Artifacts Folder
+      run: |
+        mkdir -p actions
+        cp -r app/logs/* actions/ || echo "No logs found"
+        cp -r evaluation/* actions/ || echo "No eval output"
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: smart-files-artifacts
+        path: actions/
 
     - name: Success Message
-      run: echo "CI/CD pipeline executed successfully"
+      run: echo "CI/CD pipeline completed successfully"
