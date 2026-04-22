@@ -172,3 +172,17 @@ def hosted_from_local(local_path: str):
 def get_versions(file_id: str):
     files = list(index_collection.find({"file_id": file_id}).sort("version", 1))
     return files if files else []
+
+def update_file_hosted_link(local_path: str, new_link: str, platform: str = "aws"):
+    """
+    Updates the hosted_link and source_platform for ALL versions of a specific file path.
+    """
+    try:
+        result = index_collection.update_many(
+            {"local_path": local_path},
+            {"$set": {"hosted_link": new_link, "source_platform": platform}}
+        )
+        return result.modified_count
+    except Exception as e:
+        print(f"Update error: {e}")
+        return 0

@@ -1,6 +1,4 @@
 unstructured
-"unstructured[csv]"
-"unstructured[pdf]"
 pandas
 langchain_ollama
 langchain-core
