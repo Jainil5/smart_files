@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://20.189.119.41:8000"
 
 def make_request(method, endpoint, **kwargs):
     url = f"{API_BASE_URL}{endpoint}"

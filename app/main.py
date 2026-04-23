@@ -22,7 +22,18 @@ from fastapi.staticfiles import StaticFiles
 
 logger = get_logger("app_main")
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="AI File System API")
+
+# Enable CORS for all origins (optimize as needed for production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
 app.mount("/logs", StaticFiles(directory=LOGS_DIR), name="logs")
 
