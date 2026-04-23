@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Smart Files AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body style="margin:0;font-family:Arial;background:#f8fafc;">
+
+    <div style="display:flex;height:100vh;">
+
+        <!-- SIDEBAR -->
+        <div style="width:240px;background:white;border-right:1px solid #e2e8f0;padding:20px;">
+            <h2>🧠 Smart Files</h2>
+
+            <button onclick="showTab('chat')"
+                style="width:100%;padding:10px;margin-bottom:10px;background:#2563eb;color:white;border:none;border-radius:8px;">🤖
+                AI Agent</button>
+
+            <button onclick="showTab('files')"
+                style="width:100%;padding:10px;margin-bottom:10px;background:#2563eb;color:white;border:none;border-radius:8px;">📁
+                Files</button>
+
+            <button onclick="showTab('upload')"
+                style="width:100%;padding:10px;background:#2563eb;color:white;border:none;border-radius:8px;">📤
+                Upload</button>
+        </div>
+
+        <!-- MAIN -->
+        <div style="flex:1;padding:20px;overflow:auto;">
+
+            <!-- CHAT -->
+            <div id="chat">
+                <h2>🤖 AI Agent</h2>
+
+                <div id="chatBox" style="height:60vh;overflow:auto;margin-bottom:10px;"></div>
+
+                <input id="query" placeholder="Ask something..."
+                    style="padding:10px;width:70%;border-radius:8px;border:1px solid #ccc;">
+
+                <button onclick="sendQuery()"
+                    style="padding:10px 15px;background:#2563eb;color:white;border:none;border-radius:8px;">
+                    Send
+                </button>
+            </div>
+
+            <!-- FILES -->
+            <div id="files" style="display:none;">
+                <h2>📁 Files</h2>
+
+                <button onclick="loadFiles()"
+                    style="padding:10px;background:#2563eb;color:white;border:none;border-radius:8px;">
+                    Refresh
+                </button>
+
+                <div id="fileList" style="margin-top:15px;"></div>
+            </div>
+
+            <!-- UPLOAD -->
+            <div id="upload" style="display:none;">
+                <h2>📤 Upload</h2>
+
+                <h4>Upload via Path</h4>
+                <input id="path" placeholder="Enter path or URL"
+                    style="padding:10px;width:70%;border-radius:8px;border:1px solid #ccc;">
+
+                <button onclick="uploadPath()"
+                    style="padding:10px;background:#2563eb;color:white;border:none;border-radius:8px;">
+                    Upload
+                </button>
+
+                <br><br>
+
+                <h4>Upload File</h4>
+                <input type="file" id="fileInput">
+
+                <button onclick="uploadFile()"
+                    style="padding:10px;background:#2563eb;color:white;border:none;border-radius:8px;">
+                    Upload File
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:8000"
+        let chatHistory = []
+
+        function formatResponse(text) {
+            if (!text) return ""
+
+            text = text.replace(/https?:\/\/\S+/g,
+                url => `<a href="${url}" target="_blank">🔗 Open Link</a>`)
+
+            text = text.replace(/\n/g, "<br>")
+            text = text.replace(/- /g, "• ")
+
+            return text
+        }
+
+        function renderChat() {
+            const box = document.getElementById("chatBox")
+            box.innerHTML = ""
+
+            chatHistory.slice().reverse().forEach(c => {
+                box.innerHTML += `
+            <div style="background:#2563eb;color:white;padding:10px;border-radius:10px;margin:10px 0;width:fit-content;max-width:70%;">
+                ${c.q}
+            </div>
+
+            <div style="background:white;padding:12px;border-radius:10px;border:1px solid #e2e8f0;margin:10px 0;max-width:80%;">
+                ${formatResponse(c.a)}
+            </div>
+        `
+            })
+        }
+
+        function sendQuery() {
+            const q = document.getElementById("query").value
+
+            fetch(`${BASE_URL}/query`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: q })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    chatHistory.push({
+                        q: q,
+                        a: data.response
+                    })
+                    renderChat()
+                })
+        }
+
+        function loadFiles() {
+            fetch(`${BASE_URL}/files`)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("fileList")
+                    list.innerHTML = ""
+
+                    data.data.forEach(f => {
+                        list.innerHTML += `
+                <div style="background:white;padding:15px;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;">
+                    <b>${f.file_name}</b><br><br>
+
+                    <span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:10px;font-size:11px;">
+                        ${f.file_type}
+                    </span>
+
+                    <span style="background:#eff6ff;color:#2563eb;padding:3px 8px;border-radius:10px;font-size:11px;">
+                        v${f.version}
+                    </span>
+
+                    <br><br>
+
+                    ${f.hosted_link ? `<a href="${f.hosted_link}" target="_blank">Open File</a>` : ""}
+                </div>
+            `
+                    })
+                })
+        }
+
+        function uploadPath() {
+            const path = document.getElementById("path").value
+
+            fetch(`${BASE_URL}/upload`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ path: path })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.data.upload_result)
+                })
+        }
+
+        function uploadFile() {
+            const file = document.getElementById("fileInput").files[0]
+
+            let form = new FormData()
+            form.append("file", file)
+
+            fetch(`${BASE_URL}/upload-file`, {
+                method: "POST",
+                body: form
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.data.upload_result)
+                })
+        }
+
+        function showTab(tab) {
+            document.getElementById("chat").style.display = "none"
+            document.getElementById("files").style.display = "none"
+            document.getElementById("upload").style.display = "none"
+
+            document.getElementById(tab).style.display = "block"
+        }
+    </script>
+
+</body>
+
+</html>

@@ -2,17 +2,18 @@ import mlflow
 import time
 import json
 import os
+import sys
 from contextlib import contextmanager
 
-# ---------------- CONFIG ---------------- #
-
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODELS_DIR = os.path.join(ROOT_DIR, "models")
-DB_PATH = os.path.join(MODELS_DIR, "mlflow.db")
+from .config import MLFLOW_TRACKING_URI, LOGS_DIR, RAG_OUTPUT_JSON, MLFLOW_ARTIFACT_LOCATION
 
 # Set tracking URI using SQLite database backend
-mlflow.set_tracking_uri(f"sqlite:///{DB_PATH}")
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
+# Ensure experiment exists with correct artifact location
+exp = mlflow.get_experiment_by_name("smart_files_agent")
+if not exp:
+    mlflow.create_experiment("smart_files_agent", artifact_location=f"file://{MLFLOW_ARTIFACT_LOCATION}")
 mlflow.set_experiment("smart_files_agent")
 
 
@@ -64,7 +65,7 @@ def log_rag_output(query, response, file_name):
     }
 
     # Artifact stores full content
-    file_path = "rag_output.json"
+    file_path = RAG_OUTPUT_JSON
     with open(file_path, "w") as f:
         json.dump(data, f, indent=4)
 

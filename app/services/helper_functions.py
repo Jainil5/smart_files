@@ -1,11 +1,13 @@
-from typing import List
-from langchain_ollama import ChatOllama
 import os
+import sys
 import json
 import pandas as pd
 import pdfplumber
 from docx import Document
+from typing import List
 from langchain_ollama import ChatOllama
+
+from services.config import ROOT_DIR, APP_DIR
 
 MODEL_NAME = "gpt-oss:120b-cloud"
 

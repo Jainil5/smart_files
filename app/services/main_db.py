@@ -2,9 +2,12 @@ from pymongo import MongoClient
 from datetime import datetime
 import os
 import uuid
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ------------------ CONFIG ------------------ #
-MONGO_URI = "mongodb+srv://jainil5:8aH8MG3Pb8AUZHen@documents-cluster.lp8qt26.mongodb.net/"
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = "files_db"
 INDEX_COLLECTION_NAME = "files_collection"
 UPLOADED_COLLECTION_NAME = "uploaded_files"

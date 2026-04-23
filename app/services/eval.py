@@ -1,4 +1,12 @@
 import mlflow
+from .config import MLFLOW_TRACKING_URI, MLFLOW_ARTIFACT_LOCATION
+
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+exp = mlflow.get_experiment_by_name("smart_files_agent")
+if not exp:
+    mlflow.create_experiment("smart_files_agent", artifact_location=f"file://{MLFLOW_ARTIFACT_LOCATION}")
+mlflow.set_experiment("smart_files_agent")
+
 try:
     from main_agent import bot
 except ImportError:
@@ -6,8 +14,8 @@ except ImportError:
 
 def evaluate():
     queries = [
-        "What is in the document?",
-        "Summarize the report"
+        "Find me a file on h20gpt?",
+        "How many sick leaves do i get?"
     ]
 
     with mlflow.start_run():

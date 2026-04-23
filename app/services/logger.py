@@ -12,18 +12,19 @@ Usage in any module:
 
 import logging
 import os
+import sys
 from logging.handlers import RotatingFileHandler
+
+from .config import LOGS_DIR, APP_RUNTIME_LOG
 
 # --- Config ---
 LOG_LEVEL = logging.INFO
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# Log file path: project_root/logs/smart_files.log
-_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-LOG_DIR = os.path.join(_BASE_DIR, "logs")
-LOG_FILE = os.path.join(LOG_DIR, "smart_files.log")
-os.makedirs(LOG_DIR, exist_ok=True)
+LOG_DIR = LOGS_DIR
+# App-specific runtime logs
+LOG_FILE = APP_RUNTIME_LOG
 
 
 def _configure_root_logger():

@@ -37,7 +37,7 @@ def upload_file_s3(file_path: str, expires_in: int = 86400) -> Optional[str]:
             }
         )
 
-        logger.info(f"Uploaded: {file_name}")
+        print(f"Uploaded: {file_name}")
 
         url = s3_client.generate_presigned_url(
             "get_object",
@@ -53,10 +53,10 @@ def upload_file_s3(file_path: str, expires_in: int = 86400) -> Optional[str]:
         return url
 
     except FileNotFoundError:
-        logger.error("File not found")
+        print("File not found")
     except ClientError as e:
-        logger.error(f"AWS Error: {e}")
+        print(f"AWS Error: {e}")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
 
     return None

@@ -25,3 +25,4 @@ pymongo
 mlflow
 python-pptx
 python-multipart
+plotly

@@ -1,12 +1,18 @@
+import os
+import requests
 from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
 from langchain.tools import tool
-import requests
 
+from services.config import ROOT_DIR
 from services.main_rag import rag_qna
 from services.main_search import suggest_files
 from services.sql_gen import sql_query_generator
 from services.monitoring import start_run, log_agent_query, log_agent_response
+
+# Define absolute paths for datasets
+SALES_CSV = os.path.join(ROOT_DIR, "data", "datasets", "clothing_sales_combined.csv")
+HEALTH_CSV = os.path.join(ROOT_DIR, "data", "datasets", "healthcare_dataset.csv")
 
 
 llm = ChatOllama(
@@ -107,7 +113,7 @@ def generate_sql_sales(text: str):
     try:
         _, response = sql_query_generator(
             text,
-            csv_path="data/datasets/clothing_sales_combined.csv",
+            csv_path=SALES_CSV,
             table_name="Sales"
         )
 
@@ -123,7 +129,7 @@ def generate_sql_health(text: str):
     try:
         _, response = sql_query_generator(
             text,
-            csv_path="data/datasets/healthcare_dataset.csv",
+            csv_path=HEALTH_CSV,
             table_name="Health"
         )
 

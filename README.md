@@ -92,16 +92,15 @@ MLflow + Logging (Monitoring)
 ## 📊 Monitoring & Logging
 
 * Tracks:
-
   * user queries
   * agent decisions
   * latency
   * errors
-* Logs stored in:
-
-```
-logs/smart_files.log
-```
+* Unified log directory (`logs/`):
+  * `app_runtime.log`: System and application runtime logs (Rotating).
+  * `api_performance.csv`: API latency and performance metrics.
+* Experiment Tracking:
+  * `models/mlflow.db`: SQLite backend for MLflow tracking.
 
 ---
 
@@ -180,11 +179,12 @@ streamlit run app.py
 
 ## 🔁 CI/CD Pipeline
 
-GitHub Actions is used to:
-
-* install dependencies
-* run checks
-* validate pipeline
+GitHub Actions is used for automated validation:
+* **Linting**: flake8 checks for code quality.
+* **Core Module Tests**: Validates imports and basic functionality.
+* **MLflow Tracking Test**: Verifies experiment logging integration.
+* **Evaluation Pipeline**: Runs automated evaluation scripts.
+* **Artifact Management**: Stores logs and performance metrics from each run.
 
 ---
 

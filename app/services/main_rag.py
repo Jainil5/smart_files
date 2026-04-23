@@ -1,5 +1,6 @@
-from typing import List
 import os
+import sys
+from typing import List
 
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_chroma import Chroma
@@ -7,6 +8,7 @@ from langchain_core.documents import Document
 
 from services.helper_functions import MODEL_NAME
 from services.main_db import hosted_from_local
+from .config import MODELS_DIR
 
 # 🔥 MLflow Monitoring
 from services.monitoring import (
@@ -19,8 +21,7 @@ from services.monitoring import (
 )
 
 # ------------------ CONFIG ------------------ #
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PERSIST_DIR = os.path.join(BASE_DIR, "models", "files_vector")
+PERSIST_DIR = os.path.join(MODELS_DIR, "files_vector")
 
 llm = ChatOllama(
     model=MODEL_NAME,

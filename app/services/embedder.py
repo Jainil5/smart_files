@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 import pdfplumber
 from docx import Document as DocxDocument
@@ -9,7 +10,20 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
 
+# --- Path Optimization ---
+_SERVICES_DIR = os.path.dirname(os.path.abspath(__file__))
+_APP_DIR = os.path.dirname(_SERVICES_DIR)
+_ROOT_DIR = os.path.dirname(_APP_DIR)
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
+
+from services.config import MODELS_DIR, DOCS_DIR
+
 # ---------------- CONFIG ---------------- #
+PERSIST_DIR = os.path.join(MODELS_DIR, "files_vector")
 
 SUPPORTED_TEXT_EXT = {
     ".txt", ".py", ".js", ".ts", ".jsx", ".tsx", ".html", ".css",
@@ -21,9 +35,6 @@ SUPPORTED_TEXT_EXT = {
 SUPPORTED_OFFICE_EXT = {".pdf", ".docx", ".pptx", ".xlsx", ".xls"}
 SUPPORTED_DATA_EXT = {".csv"}
 ALL_SUPPORTED_EXT = SUPPORTED_TEXT_EXT | SUPPORTED_OFFICE_EXT | SUPPORTED_DATA_EXT
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PERSIST_DIR = os.path.join(BASE_DIR, "models", "files_vector")
 
 # ---------------- VECTOR STORE ---------------- #
 
@@ -170,4 +181,4 @@ def embed_folder(folder_path: str):
 
 
 if __name__ == "__main__":
-    embed_folder(os.path.join(BASE_DIR, "data", "documents"))
+    embed_folder(DOCS_DIR)

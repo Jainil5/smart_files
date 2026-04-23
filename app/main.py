@@ -1,7 +1,18 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
-import os, shutil, logging, time, csv
+import os, shutil, logging, time, csv, sys
 from datetime import datetime
 from pydantic import BaseModel
+
+# --- Path Fix (Must be BEFORE other service imports) ---
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_ROOT_DIR = os.path.dirname(_BASE_DIR)
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+if _BASE_DIR not in sys.path:
+    sys.path.insert(0, _BASE_DIR)
+
+from services.config import DATA_DIR, DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
 from services.main_agent import bot
 from services.new_link import process_link_api
 from services.main_db import get_all_files_from_db
@@ -12,20 +23,10 @@ from fastapi.staticfiles import StaticFiles
 logger = get_logger("app_main")
 
 app = FastAPI(title="AI File System API")
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DOCS_DIR = os.path.join(DATA_DIR, "documents")
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(DOCS_DIR, exist_ok=True)
-os.makedirs(LOG_DIR, exist_ok=True)
-
 app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
-app.mount("/logs", StaticFiles(directory=LOG_DIR), name="logs")
+app.mount("/logs", StaticFiles(directory=LOGS_DIR), name="logs")
 
-CSV_FILE = os.path.join(LOG_DIR, "api_logs.csv")
+CSV_FILE = API_PERFORMANCE_CSV
 
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, "w", newline="") as f:
@@ -70,6 +71,13 @@ def upload_file(req: UploadRequest):
         logger.info(f"/upload success | latency={latency}")
         log_to_csv("/upload", "success", latency, str(upload_result))
 
+        # Response Structure:
+        # {
+        #   "status": "success",
+        #   "type": "upload",
+        #   "data": { "file_id": "...", "file_name": "...", "upload_result": "success/duplicate", ... }
+        # }
+        print(f"DEBUG: /upload response -> {result}")
         return result
 
     except Exception as e:
@@ -100,6 +108,8 @@ async def upload_physical_file(file: UploadFile = File(...)):
         logger.info(f"/upload-file success | latency={latency}")
         log_to_csv("/upload-file", "success", latency, file.filename)
 
+        # Response Structure: Same as /upload
+        print(f"DEBUG: /upload-file response -> {result}")
         return result
 
     except Exception as e:
@@ -121,10 +131,17 @@ def query_agent(req: QueryRequest):
         logger.info(f"/query success | latency={latency}")
         log_to_csv("/query", "success", latency, req.query)
 
-        return {
+        # Response Structure:
+        # {
+        #   "status": "success",
+        #   "response": "Answer from AI agent..."
+        # }
+        response_data = {
             "status": "success",
             "response": res
         }
+        print(f"DEBUG: /query response -> {response_data}")
+        return response_data
 
     except Exception as e:
         latency = time.time() - start
@@ -145,17 +162,23 @@ async def fetch_files():
         logger.info(f"/files success | latency={latency}")
         log_to_csv("/files", "success", latency)
 
-        return {
+        # Response Structure:
+        # {
+        #   "status": "success",
+        #   "data": [ { "file_name": "...", "version": 0, ... } ]
+        # }
+        response_data = {
             "status": "success",
             "data": result
         }
+        print(f"DEBUG: /files response -> {len(result)} files found")
+        return response_data
 
     except Exception as e:
         latency = time.time() - start
         logger.error(f"/files error | {str(e)}")
         log_to_csv("/files", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/")
 def root():

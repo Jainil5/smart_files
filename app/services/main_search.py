@@ -1,15 +1,23 @@
 import os
+import sys
 from typing import List
 from collections import defaultdict
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_chroma import Chroma
 from rank_bm25 import BM25Okapi
+
+# --- Path Optimization ---
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_ROOT_DIR = os.path.abspath(os.path.join(_CURRENT_DIR, "..", ".."))
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+
 from services.helper_functions import generate_reasoning, MODEL_NAME
 from services.main_db import hosted_from_local
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PERSIST_DIR = os.path.join(BASE_DIR, "models", "files_vector")
+
+PERSIST_DIR = os.path.join(_ROOT_DIR, "models", "files_vector")
 
 llm = ChatOllama(
     model=MODEL_NAME,

@@ -55,4 +55,4 @@ temp/
 .ipynb_checkpoints/
 data/documents/
 logs/
-.env
+.envrag_output.json
