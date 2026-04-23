@@ -1,18 +1,25 @@
 import os
+import sys
 import requests
 from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
 from langchain.tools import tool
 
-from services.config import ROOT_DIR
+# --- Path Optimization ---
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_APP_DIR = os.path.dirname(_CURRENT_DIR)
+_ROOT_DIR = os.path.dirname(_APP_DIR)
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
+
+from services.config import ROOT_DIR, SALES_CSV, HEALTH_CSV
 from services.main_rag import rag_qna
 from services.main_search import suggest_files
 from services.sql_gen import sql_query_generator
 from services.monitoring import start_run, log_agent_query, log_agent_response
-
-# Define absolute paths for datasets
-SALES_CSV = os.path.join(ROOT_DIR, "data", "datasets", "clothing_sales_combined.csv")
-HEALTH_CSV = os.path.join(ROOT_DIR, "data", "datasets", "healthcare_dataset.csv")
 
 
 llm = ChatOllama(
@@ -43,19 +50,19 @@ def get_weather(location: str):
 
 @tool
 def rag_tool(query: str):
-    """Perform QnA over internal documents using RAG."""
+    """Perform QnA over internal documents using RAG. Answer to questions of user using the documents."""
     try:
         res = rag_qna(query)
 
-        output = "Answer\n\n"
-        output += res.get("response", "No answer found") + "\n\n"
+        output = "Answer:\n"
+        output += res.get("response")
 
         if res.get("file_name"):
-            output += "Source\n"
-            output += f"{res['file_name']}\n\n"
+            output += "\n\nSource:\n"
+            output += f"{res['file_name']}"
 
         if res.get("hosted_link"):
-            output += f"Link\n{res['hosted_link']}\n"
+            output += f"\n\nLink\n{res['hosted_link']}"
 
         return output.strip()
 
@@ -179,7 +186,7 @@ OUTPUT DECISION
 TOOL SELECTION LOGIC
 ----------------------------------------
 1. search_tool → file discovery
-2. rag_tool → document-based answers
+2. rag_tool → document-based answers. Understand the query and analyze what is being asked and answer from the documents if query is related to the documents.
 3. generate_sql_sales → sales queries
 4. generate_sql_health → healthcare queries
 5. get_weather → weather data
@@ -187,15 +194,15 @@ TOOL SELECTION LOGIC
 ----------------------------------------
 PRIORITY ORDER
 ----------------------------------------
-1. SQL tools
-2. rag_tool
-3. search_tool
+1. rag_tool
+2. search_tool
+3. SQL tools
 4. weather
 
 ----------------------------------------
 FAILSAFE
 ----------------------------------------
-If uncertain → use rag_tool
+If uncertain → Ask user to add more context and enhance the question. DO NOT use any tool.
 """
 
 
@@ -228,10 +235,12 @@ def bot(user_input: str):
 
 if __name__ == "__main__":
     test_queries = [
-        "Find me research paper on h2ogpt.",
+        # "Find me research paper on h2ogpt.",
         "Why was my leave application rejected?",
-        "Find patients older than 50 with blood group A+ admitted under Emergency.",
-        "What's the weather in Mumbai?",
+        # "Find patients older than 50 with blood group A+ admitted under Emergency.",
+        # "What's the weather in Mumbai?",
+        "what is the pipeline of stock watchlist assistant?",
+        "What is tech stack of ai sales analyst"
     ]
 
     for i, query in enumerate(test_queries, start=1):

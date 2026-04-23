@@ -9,10 +9,13 @@ from rank_bm25 import BM25Okapi
 
 # --- Path Optimization ---
 _CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-_ROOT_DIR = os.path.abspath(os.path.join(_CURRENT_DIR, "..", ".."))
+_APP_DIR = os.path.dirname(_CURRENT_DIR)
+_ROOT_DIR = os.path.dirname(_APP_DIR)
 
 if _ROOT_DIR not in sys.path:
     sys.path.insert(0, _ROOT_DIR)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
 
 from services.helper_functions import generate_reasoning, MODEL_NAME
 from services.main_db import hosted_from_local

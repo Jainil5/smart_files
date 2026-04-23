@@ -54,6 +54,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 # ---------------- TEXT EXTRACTION ---------------- #
 
 def extract_text(filepath: str) -> List[Document]:
+    filepath = os.path.abspath(filepath)  # always use absolute path in metadata
     ext = os.path.splitext(filepath)[1].lower()
     docs = []
 
@@ -70,7 +71,7 @@ def extract_text(filepath: str) -> List[Document]:
                                 metadata={"file_path": filepath, "page": i, "type": "pdf"}
                             ))
             except Exception as e:
-                print(f"❌ Error processing {filepath}: {e}")
+                print(f"Error processing {filepath}: {e}")
 
         # -------- DOCX -------- #
         elif ext == ".docx":
@@ -131,7 +132,7 @@ def extract_text(filepath: str) -> List[Document]:
                 ))
 
     except Exception as e:
-        print(f"❌ Error processing {filepath}: {e}")
+        print(f"Error processing {filepath}: {e}")
 
     return docs
 
@@ -169,7 +170,7 @@ def embed_file(filepath: str):
 # ---------------- FOLDER INGESTION ---------------- #
 
 def embed_folder(folder_path: str):
-    print(f"\n📁 Processing folder: {folder_path}")
+    print(f"\n Processing folder: {folder_path}")
 
     for root, _, files in os.walk(folder_path):
         for file in files:

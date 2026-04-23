@@ -14,9 +14,14 @@ MODELS_DIR = os.path.join(ROOT_DIR, "models")
 LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 DATA_DIR = os.path.join(APP_DIR, "data")
 DOCS_DIR = os.path.join(DATA_DIR, "documents")
+DATASETS_DIR = os.path.join(DATA_DIR, "datasets")
+
+# Dataset CSVs
+SALES_CSV = os.path.join(DATASETS_DIR, "clothing_sales_combined.csv")
+HEALTH_CSV = os.path.join(DATASETS_DIR, "healthcare_dataset.csv")
 
 # Ensure critical directories exist
-for d in [MODELS_DIR, LOGS_DIR, DATA_DIR, DOCS_DIR]:
+for d in [MODELS_DIR, LOGS_DIR, DATA_DIR, DOCS_DIR, DATASETS_DIR]:
     os.makedirs(d, exist_ok=True)
 
 # MLflow Configuration

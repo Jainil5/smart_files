@@ -7,6 +7,13 @@ from docx import Document
 from typing import List
 from langchain_ollama import ChatOllama
 
+# --- Path Optimization ---
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_ROOT_DIR = os.path.abspath(os.path.join(_CURRENT_DIR, "..", ".."))
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+
 from services.config import ROOT_DIR, APP_DIR
 
 MODEL_NAME = "gpt-oss:120b-cloud"

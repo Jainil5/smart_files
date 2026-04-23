@@ -2,15 +2,24 @@ import os
 import sys
 from typing import List
 
+# --- Path Optimization ---
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_APP_DIR = os.path.dirname(_CURRENT_DIR)
+_ROOT_DIR = os.path.dirname(_APP_DIR)
+
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
+
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from services.helper_functions import MODEL_NAME
 from services.main_db import hosted_from_local
-from .config import MODELS_DIR
+from services.config import MODELS_DIR
 
-# 🔥 MLflow Monitoring
 from services.monitoring import (
     start_run,
     log_config,
