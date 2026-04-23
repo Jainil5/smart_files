@@ -722,15 +722,7 @@ with tab2:
 
                     with col:
                         # Fallback for hosted link if it's not a full URL
-                        display_link = hosted if hosted.startswith("http") else ""
-                        
-                        # If no cloud link, try to construct a link to the FastAPI static server
-                        if not display_link and doc.get("local_path"):
-                            local_path = doc.get("local_path")
-                            # Extract relative path from DATA_DIR (app/data)
-                            if "data/" in local_path:
-                                rel_path = local_path.split("data/")[-1]
-                                display_link = f"http://20.189.119.41:8000/data/{rel_path}"
+                        display_link = hosted if hosted and hosted.startswith("http") else ""
 
                         with st.container(border=True):
                             st.markdown(f"### **{doc.get('file_name', 'Untitled')}**")
