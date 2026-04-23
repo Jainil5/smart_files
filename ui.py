@@ -718,11 +718,11 @@ with tab2:
                     size_str = f"{file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "—"
                     version = doc.get("version", 0)
                     desc = doc.get("description", "")
-                    hosted = doc.get("hosted_link", "")
+                    hosted = doc.get("hosted_link") or ""
 
                     with col:
                         # Fallback for hosted link if it's not a full URL
-                        display_link = hosted if hosted and hosted.startswith("http") else ""
+                        display_link = hosted if hosted.startswith("http") else ""
 
                         with st.container(border=True):
                             st.markdown(f"### **{doc.get('file_name', 'Untitled')}**")
@@ -739,7 +739,7 @@ with tab2:
                             c5.markdown(f"Description: {desc}" if desc else "")
 
                             # with st.expander(" View Links"):
-                            hosted = doc.get("hosted_link", "")
+                            hosted = doc.get("hosted_link") or ""
                             if hosted.startswith("http"):
                                 st.markdown(f" **URL:**  [Open File]({hosted})")
                             else:
