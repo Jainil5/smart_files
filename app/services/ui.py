@@ -4,47 +4,11 @@ import sys
 import pandas as pd
 from datetime import datetime
 import warnings
-
-warnings.filterwarnings("ignore", message="Accessing `__path__` from .*")
-
-# --- Path Optimization (works from any CWD) ---
-_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-_APP_DIR = os.path.dirname(_CURRENT_DIR)   # app/
-_ROOT_DIR = os.path.dirname(_APP_DIR)      # project root
-
-for _p in [_ROOT_DIR, _APP_DIR, _CURRENT_DIR]:
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
-
-# --- Lazy-load heavy services with Streamlit cache ---
-# This runs ONCE per server session, not on every page interaction.
-@st.cache_resource(show_spinner=False)
-def _load_bot():
-    from services.main_agent import bot as _bot
-    return _bot
-
-@st.cache_resource(show_spinner=False)
-def _load_process_link():
-    from services.new_link import process_link_api as _fn
-    return _fn
-
-@st.cache_resource(show_spinner=False)
-def _load_db_fn():
-    from services.main_db import get_all_files_from_db as _fn
-    return _fn
-
-@st.cache_resource(show_spinner=False)
-def _load_embed_fn():
-    from services.embedder import embed_file as _fn
-    return _fn
-
-from services.config import DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
-
-# Thin wrappers so the rest of the file can call bot(), etc. directly
-def bot(q):           return _load_bot()(q)
-def process_link_api(p): return _load_process_link()(p)
-def get_all_files_from_db(): return _load_db_fn()()
-def embed_file(p):    return _load_embed_fn()(p)
+from main_agent import bot
+from new_link import process_link_api
+from main_db import get_all_files_from_db
+from embedder import embed_file
+from config import DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
 
 
 st.set_page_config(

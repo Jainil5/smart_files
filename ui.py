@@ -7,19 +7,42 @@ import warnings
 
 warnings.filterwarnings("ignore", message="Accessing `__path__` from .*")
 
+# --- Path Optimization ---
 _ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-if _ROOT_DIR not in sys.path:
-    sys.path.insert(0, _ROOT_DIR)
 _APP_DIR = os.path.join(_ROOT_DIR, "app")
-if _APP_DIR not in sys.path:
-    sys.path.insert(0, _APP_DIR)
+for _p in [_ROOT_DIR, _APP_DIR]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-# --- Direct Service Imports (Bypassing API) ---
-from app.services.main_agent import bot
-from app.services.new_link import process_link_api
-from app.services.main_db import get_all_files_from_db
-from app.services.embedder import embed_file
+# --- Lazy-load heavy services (cached for entire server session) ---
+@st.cache_resource(show_spinner="Loading AI agent...")
+def _get_bot():
+    from app.services.main_agent import bot as _fn
+    return _fn
+
+@st.cache_resource(show_spinner=False)
+def _get_process_link():
+    from app.services.new_link import process_link_api as _fn
+    return _fn
+
+@st.cache_resource(show_spinner=False)
+def _get_db_fn():
+    from app.services.main_db import get_all_files_from_db as _fn
+    return _fn
+
+@st.cache_resource(show_spinner=False)
+def _get_embed_fn():
+    from app.services.embedder import embed_file as _fn
+    return _fn
+
 from app.services.config import DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
+
+# Thin call wrappers
+def bot(q):              return _get_bot()(q)
+def process_link_api(p): return _get_process_link()(p)
+def get_all_files_from_db(): return _get_db_fn()()
+def embed_file(p):       return _get_embed_fn()(p)
+
 
 # ============================================================
 # PAGE CONFIG
