@@ -16,7 +16,7 @@ if _ROOT_DIR not in sys.path:
 
 from services.config import ROOT_DIR, APP_DIR
 
-MODEL_NAME = "llama3"
+MODEL_NAME = "gpt-oss:120b-cloud"
 
 llm = ChatOllama(
     model=MODEL_NAME,

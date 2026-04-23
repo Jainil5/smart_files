@@ -50,7 +50,7 @@ def get_weather(location: str):
 
 @tool
 def rag_tool(query: str):
-    """Perform QnA over internal documents using RAG. Answer to questions of user using the documents."""
+    """Perform QnA over internal documents using RAG. Answer to questions of user using the documents. Add sources as link with response."""
     try:
         res = rag_qna(query)
 
@@ -175,6 +175,7 @@ STRICT BEHAVIOR RULES
 5. Do not mention tools
 6. Do not wrap output in code blocks
 7. Always return final formatted output only
+8. Always add source with rag tool response
 
 ----------------------------------------
 OUTPUT DECISION

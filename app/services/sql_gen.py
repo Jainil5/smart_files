@@ -2,7 +2,7 @@ import re
 import pandas as pd
 import ollama
 
-MODEL_NAME = "llama3"
+MODEL_NAME = "gemma3:1b"
 
 
 def clean_sql(text: str) -> str:
