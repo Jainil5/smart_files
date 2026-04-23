@@ -55,4 +55,10 @@ temp/
 .ipynb_checkpoints/
 data/documents/
 logs/
-.envrag_output.json
+.env
+rag_output.json
+models/mlflow.db
+mlruns/
+mlartifacts/
+**/mlruns/
+**/mlartifacts/
