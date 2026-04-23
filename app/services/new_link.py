@@ -7,7 +7,7 @@ import uuid
 from urllib.parse import urlparse
 import gdown
 from fastapi import HTTPException
-from migration_s3 import get_s3_hosted_url
+from services.main_s3 import upload_file_s3
 from services.config import DOCS_DIR
 from services.main_db import add_file_to_db, upload_local_file
 
@@ -273,7 +273,7 @@ def process_link_api(input_path: str):
         file_name = os.path.basename(path)
         file_type = get_file_type(file_name)
         file_id = generate_file_id()
-        s3_link = get_s3_hosted_url(path)
+        s3_link = upload_file_s3(path)
         status, message = add_file_to_db(
             file_id=file_id,
             file_name=file_name,
