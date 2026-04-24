@@ -70,7 +70,7 @@ html, body, [class*="css"] {
 .stApp {
     background: #0d0d0f;
     background-image:
-        radial-gradient(ellipse 80% 60% at 20% 0%, rgba(99,69,255,0.13) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 20% 0%, rgba(236,72,153,0.13) 0%, transparent 60%),
         radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,210,170,0.08) 0%, transparent 55%);
 }
 
@@ -113,9 +113,9 @@ h1, h2, h3, h4 {
     transition: all 0.2s ease;
 }
 .stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, #6345ff 0%, #4f8eff 100%) !important;
+    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%) !important;
     color: white !important;
-    box-shadow: 0 2px 12px rgba(99,69,255,0.35);
+    box-shadow: 0 2px 12px rgba(236,72,153,0.35);
 }
 
 /* ── Buttons ── */
@@ -133,18 +133,18 @@ h1, h2, h3, h4 {
     transition: all 0.2s ease;
 }
 .stButton > button:hover {
-    background: rgba(99,69,255,0.2);
-    border-color: rgba(99,69,255,0.5);
+    background: rgba(236,72,153,0.2);
+    border-color: rgba(236,72,153,0.5);
     color: white;
 }
 .stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #6345ff 0%, #4f8eff 100%);
+    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
     border: none;
     color: white;
-    box-shadow: 0 4px 15px rgba(99,69,255,0.4);
+    box-shadow: 0 4px 15px rgba(236,72,153,0.4);
 }
 .stButton > button[kind="primary"]:hover {
-    box-shadow: 0 6px 20px rgba(99,69,255,0.6);
+    box-shadow: 0 6px 20px rgba(236,72,153,0.6);
     transform: translateY(-1px);
 }
 
@@ -159,8 +159,8 @@ h1, h2, h3, h4 {
     transition: border-color 0.2s ease;
 }
 .stTextArea textarea:focus, .stTextInput input:focus {
-    border-color: rgba(99,69,255,0.5) !important;
-    box-shadow: 0 0 0 3px rgba(99,69,255,0.1) !important;
+    border-color: rgba(236,72,153,0.5) !important;
+    box-shadow: 0 0 0 3px rgba(236,72,153,0.1) !important;
 }
 
 /* ── Select box ── */
@@ -218,12 +218,12 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
 .stCaption { color: #6b6878 !important; font-size: 0.78rem !important; }
 
 /* ── Spinner ── */
-.stSpinner > div { border-top-color: #6345ff !important; }
+.stSpinner > div { border-top-color: #ec4899 !important; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(99,69,255,0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(236,72,153,0.3); border-radius: 4px; }
 
 /* ── Custom classes ── */
 .page-header {
@@ -253,13 +253,13 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     height: 100%;
 }
 .agent-mode-card:hover {
-    border-color: rgba(99,69,255,0.4);
-    background: rgba(99,69,255,0.08);
+    border-color: rgba(236,72,153,0.4);
+    background: rgba(236,72,153,0.08);
 }
 .agent-mode-card.active {
-    border-color: #6345ff;
-    background: rgba(99,69,255,0.12);
-    box-shadow: 0 0 0 1px rgba(99,69,255,0.3);
+    border-color: #ec4899;
+    background: rgba(236,72,153,0.12);
+    box-shadow: 0 0 0 1px rgba(236,72,153,0.3);
 }
 .agent-mode-card .icon { font-size: 2rem; margin-bottom: 10px; }
 .agent-mode-card .title {
@@ -274,7 +274,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
 .response-bubble {
     background: #18181e;
     border: 1px solid rgba(255,255,255,0.06);
-    border-left: 3px solid #6345ff;
+    border-left: 3px solid #ec4899;
     border-radius: 14px;
     padding: 24px;
     margin: 16px 0;
@@ -282,7 +282,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
 .response-bubble .q-label {
     font-family: 'DM Mono', monospace;
     font-size: 1.2rem;
-    color: #6345ff;
+    color: #ec4899;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 8px;
@@ -330,9 +330,9 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     font-family: 'DM Sans', sans-serif;
 }
 .sample-chip:hover {
-    border-color: rgba(99,69,255,0.4);
+    border-color: rgba(236,72,153,0.4);
     color: #c8c5d8;
-    background: rgba(99,69,255,0.08);
+    background: rgba(236,72,153,0.08);
 }
 
 .history-item {
@@ -432,8 +432,8 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(99,69,255,0.12);
-    border: 1px solid rgba(99,69,255,0.25);
+    background: rgba(236,72,153,0.12);
+    border: 1px solid rgba(236,72,153,0.25);
     border-radius: 20px;
     padding: 5px 14px;
     font-family: 'DM Mono', monospace;
@@ -459,7 +459,7 @@ PLATFORM_META = {
     "drive": {"label": "Google Drive", "color": "#34A853"},
     "azure": {"label": "Azure Blob",   "color": "#0078D4"},
     "gcp":   {"label": "GCP Storage",  "color": "#4285F4"},
-    "local": {"label": "Local",        "color": "#6345ff"},
+    "local": {"label": "Local",        "color": "#ec4899"},
     "mongo": {"label": "MongoDB",      "color": "#4DB33D"},
 }
 
@@ -708,12 +708,12 @@ with tab2:
         else:
             pairs = [display_docs[i:i+2] for i in range(0, len(display_docs), 2)]
             for pair in pairs:
-                cols = st.columns([1, 0.04, 1])
+                cols = st.columns([1, 0.001, 1])
                 for col, doc in zip([cols[0], cols[2]], pair):
                     p_info = PLATFORM_META.get(doc.get("source_platform", "local").lower(), {"label": "Unknown", "color": "#6B7280"})
                     ftype = doc.get("file_type", "?").upper()
                     ftype_colors = {"PDF": "#ef4444", "CSV": "#10b981", "TXT": "#f59e0b", "DOCX": "#3b82f6"}
-                    ftype_color = ftype_colors.get(ftype, "#6345ff")
+                    ftype_color = ftype_colors.get(ftype, "#ec4899")
                     file_size = doc.get("file_size")
                     size_str = f"{file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "—"
                     version = doc.get("version", 0)
@@ -726,17 +726,17 @@ with tab2:
 
                         with st.container(border=True):
                             st.markdown(f"### **{doc.get('file_name', 'Untitled')}**")
-                            c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 2])
-                            c1.markdown(f"File Type: `{doc.get('file_type', '?').upper()}`")
+                            c1, c2, c3, c4 = st.columns([1.5, 1.5, 1.5, 1.5])
+                            c1.markdown(f"Type: `{doc.get('file_type', '?').upper()}`")
                             c2.markdown(f"Version: `v{doc.get('version', 0)}`")
                             c3.markdown(f"Source: <span style='background:{p_info['color']};color:white;border-radius:20px;padding:2px 10px;font-size:0.75rem;'>{p_info['label']}</span>", unsafe_allow_html=True)
                             # File size (KB) if available
                             file_size = doc.get('file_size')
-                            size_str = f"File Size: {file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "N/A"
+                            size_str = f"Size: {file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "—"
                             c4.markdown(f"`{size_str}`")
-                            # Description if present
-                            desc = doc.get('description')
-                            c5.markdown(f"Description: {desc}" if desc else "")
+                            # # Description if present
+                            # desc = doc.get('description')
+                            # c5.markdown(f"Description: {desc}" if desc else "")
 
                             # with st.expander(" View Links"):
                             hosted = doc.get("hosted_link") or ""
