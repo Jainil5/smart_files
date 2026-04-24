@@ -1,9 +1,20 @@
 import os
+import sys
 import mimetypes
 from typing import Optional
 from boto3.session import Session
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+
+# --- Path Optimization ---
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_APP_DIR = os.path.dirname(_CURRENT_DIR)
+_ROOT_DIR = os.path.dirname(_APP_DIR)
+
+for _p in [_ROOT_DIR, _APP_DIR, _CURRENT_DIR]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 from services.logger import get_logger
 
 load_dotenv()
