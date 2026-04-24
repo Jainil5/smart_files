@@ -75,7 +75,7 @@ html, body, [class*="css"] {
     background: #0d0d0f;
     background-image:
         radial-gradient(ellipse 80% 60% at 20% 0%, rgba(236,72,153,0.13) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,210,170,0.08) 0%, transparent 55%);
+        radial-gradient(ellipse 60% 50% at 80% 100%, rgba(251,113,133,0.08) 0%, transparent 55%);
 }
 
 /* ── Hide Streamlit chrome ── */
@@ -240,7 +240,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     font-size: 2rem;
     font-weight: 800;
     margin: 0 0 6px;
-    background: linear-gradient(90deg, #fff 0%, #a89fff 100%);
+    background: linear-gradient(90deg, #fff 0%, #f9a8d4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -301,7 +301,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
 .response-bubble .a-label {
     font-family: 'DM Mono', monospace;
     font-size: 1.2rem;
-    color: #00d2aa;
+    color: #fb7185;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 8px;
@@ -410,7 +410,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     font-family: 'Syne', sans-serif;
     font-weight: 800;
     font-size: 1.3rem;
-    background: linear-gradient(90deg, #fff 0%, #a89fff 100%);
+    background: linear-gradient(90deg, #fff 0%, #f9a8d4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.03em;
@@ -423,7 +423,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #00d2aa;
+    background: #fb7185;
     margin-right: 6px;
     animation: pulse-dot 2s infinite;
 }
@@ -442,7 +442,7 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     padding: 5px 14px;
     font-family: 'DM Mono', monospace;
     font-size: 0.72rem;
-    color: #a89fff;
+    color: #f9a8d4;
     margin-bottom: 20px;
 }
 </style>
@@ -654,7 +654,7 @@ with tab1:
         """, unsafe_allow_html=True)
         # # Render response as proper markdown (handles bold, lists, code, etc.)
         # st.markdown(
-        #     f"<div style='background:#18181e;border:1px solid rgba(255,255,255,0.06);border-left:3px solid #00d2aa;border-radius:0 0 14px 14px;padding:20px 24px;margin-top:-2px;font-size:0.92rem;color:#e8e6e1;line-height:1.75;'>",
+        #     f"<div style='background:#18181e;border:1px solid rgba(255,255,255,0.06);border-left:3px solid #fb7185;border-radius:0 0 14px 14px;padding:20px 24px;margin-top:-2px;font-size:0.92rem;color:#e8e6e1;line-height:1.75;'>",
         #     unsafe_allow_html=True
         # )
         # st.markdown(latest['response'])
