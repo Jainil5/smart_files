@@ -1,5 +1,4 @@
 import os, sys
-# --- Path Optimization ---
 _SERVICES_DIR = os.path.dirname(os.path.abspath(__file__))
 _APP_DIR = os.path.dirname(_SERVICES_DIR)
 _ROOT_DIR = os.path.dirname(_APP_DIR)

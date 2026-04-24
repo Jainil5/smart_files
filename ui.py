@@ -77,6 +77,7 @@ html, body, [class*="css"] {
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
+.block-container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
 
 /* ── Typography ── */
 h1, h2, h3, h4 {
@@ -93,20 +94,19 @@ h1, h2, h3, h4 {
 
 /* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 0;
+    gap: 40px;
     background: #111115;
     border-radius: 12px;
-    padding: 4px;
+    padding: 8px;
     border: 1px solid rgba(255,255,255,0.06);
 }
 .stTabs [data-baseweb="tab"] {
     border-radius: 8px;
-    padding: 10px 24px;
+    padding: 14px 36px;
     font-family: 'Syne', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: #6b6878;
     background: transparent;
     border: none;
@@ -115,21 +115,22 @@ h1, h2, h3, h4 {
 .stTabs [aria-selected="true"] {
     background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%) !important;
     color: white !important;
-    box-shadow: 0 2px 12px rgba(236,72,153,0.35);
+    box-shadow: 0 4px 16px rgba(236,72,153,0.4);
 }
 
 /* ── Buttons ── */
 .stButton > button {
     font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.1);
     background: rgba(255,255,255,0.04);
     color: #e8e6e1;
-    padding: 10px 20px;
+    padding: 16px 32px;
+    width: 100%;
     transition: all 0.2s ease;
 }
 .stButton > button:hover {
@@ -141,11 +142,11 @@ h1, h2, h3, h4 {
     background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
     border: none;
     color: white;
-    box-shadow: 0 4px 15px rgba(236,72,153,0.4);
+    box-shadow: 0 6px 20px rgba(236,72,153,0.4);
 }
 .stButton > button[kind="primary"]:hover {
-    box-shadow: 0 6px 20px rgba(236,72,153,0.6);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(236,72,153,0.6);
+    transform: translateY(-2px);
 }
 
 /* ── Inputs ── */
@@ -468,7 +469,7 @@ AGENT_MODES = [
         "id": "semantic",
         "icon": "🔍",
         "title": "Semantic Search",
-        "desc": "Find documents by meaning, not just keywords. ",
+        "desc": "Find documents by meaning, not just keywords. Responds from documents using semantic search.",
         "placeholder": "e.g. Find research papers about transformer attention mechanisms",
         "samples": [
             "Find me research paper on h2ogpt",
@@ -609,7 +610,7 @@ with tab1:
         label_visibility="collapsed",
     )
 
-    btn_col1, btn_col2, btn_col3 = st.columns([2, 2, 6])
+    btn_spacer1, btn_col1, btn_col2, btn_spacer2 = st.columns([3, 2, 2, 3])
     with btn_col1:
         ask_clicked = st.button("⬡  Run Query", type="primary", use_container_width=True)
     with btn_col2:
