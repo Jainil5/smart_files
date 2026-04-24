@@ -289,9 +289,10 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     margin-bottom: 8px;
 }
 .response-bubble .q-text {
-    font-weight: 500;
-    font-size: 1.5rem;
-    color: #c8c5d8;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    color: #ec4899;
+    letter-spacing: 0.05em;
     margin-bottom: 16px;
     line-height: 1.6;
 }
@@ -643,8 +644,7 @@ with tab1:
         latest = st.session_state.query_history[0]
         st.markdown(f"""
         <div class="response-bubble">
-            <div class="q-label">{latest.get('mode_icon','🔍')} {latest.get('mode','Agent')} · {latest['timestamp']}</div>
-            <div class="q-text">{latest['query']}</div>
+            <div class="q-text">{latest.get('mode_icon','🔍')} {latest['query']}</div>
             <div class="a-label">◈ Response</div>
             <div class="a-text">{latest['response']}</div>
         </div>
@@ -701,7 +701,7 @@ with tab2:
             st.markdown("<br>", unsafe_allow_html=True)
             m4.metric("File Types", len(ftypes))
 
-        search = st.text_input("", placeholder="🔎  Filter files by name, type, or source…", label_visibility="collapsed")
+        search = st.text_input("Search files", placeholder="🔎  Filter files by name, type, or source…", label_visibility="collapsed")
         display_docs = [d for d in files_list if search.lower() in str(d).lower()] if search else files_list
 
         if not display_docs:

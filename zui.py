@@ -293,9 +293,10 @@ hr { border-color: rgba(255,255,255,0.06) !important; }
     margin-bottom: 8px;
 }
 .response-bubble .q-text {
-    font-weight: 500;
-    font-size: 1.5rem;
-    color: #c8c5d8;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    color: #ec4899;
+    letter-spacing: 0.05em;
     margin-bottom: 16px;
     line-height: 1.6;
 }
@@ -473,7 +474,7 @@ AGENT_MODES = [
         "id": "semantic",
         "icon": "🔍",
         "title": "Semantic Search",
-        "desc": "Find documents by meaning, not just keywords. ",
+        "desc": "Find documents by meaning, not just keywords. Responds from documents using semantic search.",
         "placeholder": "e.g. Find research papers about transformer attention mechanisms",
         "samples": [
             "Find me research paper on h2ogpt",
@@ -647,8 +648,7 @@ with tab1:
         latest = st.session_state.query_history[0]
         st.markdown(f"""
         <div class="response-bubble">
-            <div class="q-label">{latest.get('mode_icon','🔍')} {latest.get('mode','Agent')} · {latest['timestamp']}</div>
-            <div class="q-text">{latest['query']}</div>
+            <div class="q-text">{latest.get('mode_icon','🔍')} {latest['query']}</div>
             <div class="a-label">◈ Response</div>
             <div class="a-text">{latest['response']}</div>
         </div>
@@ -705,7 +705,7 @@ with tab2:
             st.markdown("<br>", unsafe_allow_html=True)
             m4.metric("File Types", len(ftypes))
 
-        search = st.text_input("", placeholder="🔎  Filter files by name, type, or source…", label_visibility="collapsed")
+        search = st.text_input("Search files", placeholder="🔎  Filter files by name, type, or source…", label_visibility="collapsed")
         display_docs = [d for d in files_list if search.lower() in str(d).lower()] if search else files_list
 
         if not display_docs:
@@ -713,7 +713,7 @@ with tab2:
         else:
             pairs = [display_docs[i:i+2] for i in range(0, len(display_docs), 2)]
             for pair in pairs:
-                cols = st.columns([1, 0.04, 1])
+                cols = st.columns([1, 0.001, 1])
                 for col, doc in zip([cols[0], cols[2]], pair):
                     p_info = PLATFORM_META.get(doc.get("source_platform", "local").lower(), {"label": "Unknown", "color": "#6B7280"})
                     ftype = doc.get("file_type", "?").upper()
@@ -731,17 +731,17 @@ with tab2:
 
                         with st.container(border=True):
                             st.markdown(f"### **{doc.get('file_name', 'Untitled')}**")
-                            c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 2])
-                            c1.markdown(f"File Type: `{doc.get('file_type', '?').upper()}`")
+                            c1, c2, c3, c4 = st.columns([1.5, 1.5, 1.5, 1.5])
+                            c1.markdown(f"Type: `{doc.get('file_type', '?').upper()}`")
                             c2.markdown(f"Version: `v{doc.get('version', 0)}`")
                             c3.markdown(f"Source: <span style='background:{p_info['color']};color:white;border-radius:20px;padding:2px 10px;font-size:0.75rem;'>{p_info['label']}</span>", unsafe_allow_html=True)
                             # File size (KB) if available
                             file_size = doc.get('file_size')
-                            size_str = f"File Size: {file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "N/A"
+                            size_str = f"Size: {file_size/1024:.1f} KB" if isinstance(file_size, (int, float)) else "—"
                             c4.markdown(f"`{size_str}`")
-                            # Description if present
-                            desc = doc.get('description')
-                            c5.markdown(f"Description: {desc}" if desc else "")
+                            # # Description if present
+                            # desc = doc.get('description')
+                            # c5.markdown(f"Description: {desc}" if desc else "")
 
                             # with st.expander(" View Links"):
                             hosted = doc.get("hosted_link") or ""
