@@ -14,9 +14,9 @@ Organizations deal with scattered unstructured and structured data (PDFs, CSVs, 
 
 This project solves this by:
 
-* enabling semantic search across documents
-* providing AI-powered Q&A (RAG)
-* generating SQL queries for structured datasets
+* **enabling semantic search across documents**
+* **providing AI-powered Q&A (RAG)**
+* **generating SQL queries for structured datasets**
 
 ---
 
@@ -127,53 +127,6 @@ Tracks:
 
 ---
 
-## 🚀 Setup Instructions
-
-### 1. Clone Repository
-
-```bash
-git clone <repo-url>
-cd smart_files
-```
-
----
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### 3. Setup Environment Variables
-
-Create `.env` file:
-
-```env
-AWS_ACCESS_KEY_ID=your_key
-AWS_SECRET_ACCESS_KEY=your_secret
-AWS_REGION=your_region
-AWS_BUCKET_NAME=your_bucket
-
-MONGO_URI=your_mongo_uri
-```
-
----
-
-### 4. Run Backend (FastAPI)
-
-```bash
-uvicorn app.main:app --reload
-```
-
----
-
-### 5. Run Frontend (Streamlit)
-
-```bash
-streamlit run app.py
-```
 
 ---
 
