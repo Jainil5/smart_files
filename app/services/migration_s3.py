@@ -14,10 +14,7 @@ from services.main_s3 import upload_file_s3
 
 
 def update_db_s3_links():
-    """
-    Fetches all files from the database, ensures they are uploaded to S3,
-    and updates their hosted links in MongoDB.
-    """
+
     print("Starting MongoDB S3 link synchronization...")
     
     files = get_all_files_from_db()

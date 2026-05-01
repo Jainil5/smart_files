@@ -120,10 +120,30 @@ def describe_file(filepath: str):
         print(f"❌ Error reading {filepath}: {e}")
         return None
 
-    # 🔥 Token-safe trimming
-    words = content.split()
-    return " ".join(words[:1200])
+    # 🔥 AI Description Generation
+    try:
+        words = content.split()
+        truncated_content = " ".join(words[:1000])
+        
+        if not truncated_content.strip():
+            return "File appears to be empty or contains no readable text."
 
+        summary_prompt = f"""
+        Summarize the following document content in 2-3 concise, professional sentences. 
+        Focus on the main purpose and key topics of the file.
+
+        CONTENT:
+        {truncated_content}
+
+        SUMMARY:
+        """
+        
+        response = llm.invoke(summary_prompt)
+        return response.content.strip()
+
+    except Exception as e:
+        print(f"❌ AI Summary Error: {e}")
+        return " ".join(content.split()[:50]) + "..." # Fallback to raw snippet
 
 
 def generate_reasoning(query: str, file_path: str, file_type: str, pages_content: List[str]) -> str:

@@ -1,0 +1,1 @@
+ssh -i jvm1_key.pem azureuser@20.189.119.41

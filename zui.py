@@ -10,9 +10,9 @@ warnings.filterwarnings("ignore", message="Accessing `__path__` from .*")
 # ============================================================
 # API CONFIG
 # ============================================================
-l = "http://127.0.0.1:8000"
+# l = "http://127.0.0.1:8000"
 h = "http://20.189.119.41:8000"
-API_URL = l
+API_URL = h
 DOCS_DIR = "/tmp/smartfiles_uploads"
 LOGS_DIR  = ""
 API_PERFORMANCE_CSV = ""

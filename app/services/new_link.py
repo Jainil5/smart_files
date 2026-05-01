@@ -226,7 +226,6 @@ def process_link_api(input_path: str):
             file_name = os.path.basename(input_path)
             new_path = os.path.join(LOCAL_DATA_DIR, file_name)
 
-            # Avoid self-copy when file is already in the target directory
             if os.path.abspath(input_path) != os.path.abspath(new_path):
                 with open(input_path, "rb") as src, open(new_path, "wb") as dst:
                     dst.write(src.read())

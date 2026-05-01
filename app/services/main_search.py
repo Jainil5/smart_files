@@ -1,7 +1,10 @@
 import os
 import sys
+import warnings
 from typing import List
 from collections import defaultdict
+
+warnings.filterwarnings("ignore", category=UserWarning)
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_chroma import Chroma
@@ -18,7 +21,7 @@ if _APP_DIR not in sys.path:
     sys.path.insert(0, _APP_DIR)
 
 from services.helper_functions import generate_reasoning, MODEL_NAME
-from services.main_db import hosted_from_local
+from services.main_db import hosted_from_local,hosted_from_name
 
 PERSIST_DIR = os.path.join(_ROOT_DIR, "models", "files_vector")
 
@@ -106,7 +109,6 @@ def hybrid_search(query: str, k: int = 3):
     return list(unique.values())[:k]
 
 
-# ================== ✅ UPDATED FUNCTION ================== #
 def suggest_files(query: str, k: int = 10):
     results = hybrid_search(query, k)
 
@@ -134,37 +136,27 @@ def suggest_files(query: str, k: int = 10):
 
         grouped_data[file_path]["contents"].append(doc.page_content)
 
-    from concurrent.futures import ThreadPoolExecutor
-
-    # 🔹 Build final JSON output concurrently
     final_output = []
 
-    def process_file_data(file_path, data):
+    for file_path, data in grouped_data.items():
         file_name = os.path.basename(file_path)
         file_type = data["file_type"]
-        hosted_link = hosted_from_local(file_path)
         contents = data["contents"]
+
         reasoning = generate_reasoning(
             query=query,
             file_path=file_path,
             file_type=file_type,
-            pages_content=contents[:3]  # Limit to top 3 chunks for faster processing
+            pages_content=contents
         )
-        return {
+
+        final_output.append({
             "file_name": file_name,
             "file_type": file_type,
             "file_path": file_path,
-            "hosted_link": hosted_link,
+            "hosted_link": hosted_from_name(file_name),
             "reasoning": reasoning
-        }
-
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = []
-        for file_path, data in grouped_data.items():
-            futures.append(executor.submit(process_file_data, file_path, data))
-
-        for f in futures:
-            final_output.append(f.result())
+        })
 
     return final_output
 
@@ -173,13 +165,13 @@ def suggest_files(query: str, k: int = 10):
 
 # ================== MAIN ================== #
 if __name__ == "__main__":
-    query = "pipeline of stock watchlist assistant?"
+    query = "Find me a file on stock watchlist assistant?"
 
     files = suggest_files(query)
-
-    print("\nFILE SUGGESTIONS\n")
-    for f in files:
-        print(f)
+    print(files)
+    # print("\nFILE SUGGESTIONS\n")
+    # for f in files:
+    #     print(f)
 
 
 # {'file_name': '2306.08161.pdf', 'file_type': 'pdf', 'file_path': 'app/data/documents/2306.08161.pdf', 'hosted_link': 'https://drive.google.com/file/d/1Wi-ZqO0Xxx5EribGm2GB-Q2wISr6GtL0/view?usp=drive_link', 'reasoning': 'This document is relevant because the text details the development of H2OLLM Data Studio, a tool used for data preparation for LLM fine-tuning, and highlights the use of Open Source strategies for AI benefits. On page 2, it explains the data preparation process, including dataset creation and transformation steps, specifically focusing on text summarization and addressing potential issues like profanity.  The document also introduces H2OGPT by H2O.ai, emphasizing its role as a democratizing effort for large language models. On page 3, it describes the model architecture and LoRA adapters used for causal language modeling, referencing the RWForCausalLM model.'}

@@ -4,9 +4,6 @@ import json
 from datetime import datetime
 import pandas as pd
 
-# ============================================
-# Configuration
-# ============================================
 st.set_page_config(
     page_title="Smart Files",
     page_icon="",
@@ -31,9 +28,7 @@ def make_request(method, endpoint, **kwargs):
         return None, f" HTTP Error: {e.response.status_code} - {e.response.text}"
     except Exception as e:
         return None, f" Error: {str(e)}"
-# ============================================
 # Main UI
-# ============================================
 st.title(" AI File System Interface")
 st.markdown("---")
 
@@ -43,7 +38,6 @@ tab1, tab2, tab3= st.tabs([
     " Upload File"
 ])
 
-# ============================================
 with tab3:
     st.title("📤 Ingestion & Analysis Pipeline")
     st.write("Convert raw unstructured files into high-dimensional vector embeddings.")

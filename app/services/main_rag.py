@@ -15,9 +15,8 @@ if _APP_DIR not in sys.path:
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-
 from services.helper_functions import MODEL_NAME
-from services.main_db import hosted_from_local
+from services.main_db import hosted_from_local, hosted_from_name
 from services.config import MODELS_DIR
 
 from services.monitoring import (
@@ -99,28 +98,28 @@ def rag_qna(query: str, k: int = 5):
 
         # 🔹 Step 5: Prompt
         prompt = f"""
-You are a precise question-answering assistant.
+            You are a precise question-answering assistant.
 
-QUESTION:
-{query}
+            QUESTION:
+            {query}
 
-CONTEXT:
-{context}
+            CONTEXT:
+            {context}
 
-INSTRUCTIONS:
-- Answer ONLY from context
-- Do NOT hallucinate
-- If answer is not found, say: "Not found in document"
-- Keep answer concise
+            INSTRUCTIONS:
+            - Answer ONLY from context
+            - Do NOT hallucinate
+            - If answer is not found, say: "Not found in document"
+            - Keep answer concise
 
-ANSWER:
-"""
+            ANSWER:
+            """
 
         # 🔹 Step 6: Generate answer
         timer.start()
         response = llm.invoke(prompt).content.strip()
         llm_time = timer.stop()
-
+        file_type = os.path.splitext(file_name)[1].lower()
         log_latency(llm_time=llm_time)
 
         # 🔹 Save output
@@ -129,8 +128,8 @@ ANSWER:
         return {
             "response": response,
             "file_name": file_name,
-            "file_path": best_file,
-            "hosted_link": hosted_from_local(best_file)
+            "file_type": file_type,
+            "hosted_link": hosted_from_name(file_name),
         }
 
 

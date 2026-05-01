@@ -159,6 +159,25 @@ def get_all_files_from_db():
         print(f"Database Error: {e}")
         return []
 # ------------------ FETCH FUNCTIONS ------------------ #
+def delete_file(local_path: str):
+    try:
+        # Delete from index_collection where local_path matches
+        result = index_collection.delete_many({"local_path": local_path})
+        
+        # Delete from uploaded_collection where file_name matches (to free local storage)
+        # Note: uploaded_collection stores file_data (blobs)
+        upload_result = uploaded_collection.delete_many({"file_name": os.path.basename(local_path)})
+        
+        deleted_index_count = result.deleted_count
+        deleted_upload_count = upload_result.deleted_count
+        
+        if os.path.exists(local_path):
+            os.remove(local_path)
+        return True, f"Deleted {deleted_index_count} file records and {deleted_upload_count} file data records and local file."
+
+    except Exception as e:
+        return False, str(e)
+
 def get_file_id_from_path(local_path: str):
     result = index_collection.find_one({"local_path": local_path, "is_latest": True})
     return result["file_id"] if result else None
@@ -171,6 +190,10 @@ def hosted_from_id(file_id: str):
 
 def hosted_from_local(local_path: str):
     result = index_collection.find_one({"local_path": local_path, "is_latest": True})
+    return result["hosted_link"] if result else None
+
+def hosted_from_name(file_name: str):
+    result = index_collection.find_one({"file_name": file_name, "is_latest": True})
     return result["hosted_link"] if result else None
 
 def get_versions(file_id: str):

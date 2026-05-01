@@ -14,6 +14,7 @@ if _BASE_DIR not in sys.path:
 
 from services.config import DATA_DIR, DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
 from services.main_agent import bot
+from services.file_rag import run_rag
 from services.new_link import process_link_api
 from services.main_db import get_all_files_from_db
 from services.embedder import embed_file
@@ -64,6 +65,9 @@ class UploadRequest(BaseModel):
 class QueryRequest(BaseModel):
     query: str
 
+class RAGRequest(BaseModel):
+    file_path: str
+    query: str
 
 @app.post("/upload")
 def upload_file(req: UploadRequest):
@@ -158,6 +162,35 @@ def query_agent(req: QueryRequest):
         latency = time.time() - start
         logger.error(f"/query error | {str(e)}")
         log_to_csv("/query", "error", latency, str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+  
+@app.post("/file-rag")
+def file_rag_query(req: RAGRequest):
+    start = time.time()
+    try:
+        logger.info(f"/file-rag called | file={req.file_path} | query={req.query}")
+        result = run_rag(req.file_path, req.query)
+
+        latency = time.time() - start
+        logger.info(f"/file-rag success | latency={latency}")
+        log_to_csv("/file-rag", "success", latency, req.file_path)
+
+        response_data = {
+            "status": "success",
+            "response": result.get("response"),
+            "file_name": result.get("file_name"),
+            "file_path": result.get("file_path"),
+            "hosted_link": result.get("hosted_link")
+        }
+
+        print(f"DEBUG: /file-rag response -> {response_data}")
+
+        return response_data
+
+    except Exception as e:
+        latency = time.time() - start
+        logger.error(f"/file-rag error | {str(e)}")
+        log_to_csv("/file-rag", "error", latency, str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 

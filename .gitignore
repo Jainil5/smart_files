@@ -62,3 +62,8 @@ mlruns/
 mlartifacts/
 **/mlruns/
 **/mlartifacts/
+
+*.pem
+services/outputs/
+
+app/data/documents

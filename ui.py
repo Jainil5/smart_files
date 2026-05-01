@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 import warnings
 
-warnings.filterwarnings("ignore", message="Accessing `__path__` from .*")
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # --- Path Optimization ---
 _ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +15,7 @@ for _p in [_ROOT_DIR, _APP_DIR]:
         sys.path.insert(0, _p)
 
 # --- Lazy-load heavy services (cached for entire server session) ---
-@st.cache_resource(show_spinner="Loading AI agent...")
+# @st.cache_resource(show_spinner="Loading AI agent...")
 def _get_bot():
     from app.services.main_agent import bot as _fn
     return _fn
@@ -35,6 +35,21 @@ def _get_embed_fn():
     from app.services.embedder import embed_file as _fn
     return _fn
 
+@st.cache_resource(show_spinner=False)
+def _get_delete_file_fn():
+    from app.services.main_db import delete_file as _fn
+    return _fn
+
+@st.cache_resource(show_spinner=False)
+def _get_run_rag_fn():
+    from app.services.file_rag import run_rag as _fn
+    return _fn
+
+@st.cache_resource(show_spinner=False)
+def _get_describe_file_fn():
+    from app.services.helper_functions import describe_file as _fn
+    return _fn
+
 from app.services.config import DOCS_DIR, LOGS_DIR, API_PERFORMANCE_CSV
 
 # Thin call wrappers
@@ -42,6 +57,8 @@ def bot(q):              return _get_bot()(q)
 def process_link_api(p): return _get_process_link()(p)
 def get_all_files_from_db(): return _get_db_fn()()
 def embed_file(p):       return _get_embed_fn()(p)
+def delete_file(p):      return _get_delete_file_fn()(p)
+def run_rag(p, q):       return _get_run_rag_fn()(p, q)
 
 
 # ============================================================
@@ -119,17 +136,18 @@ h1, h2, h3, h4 {
 }
 
 /* ── Buttons ── */
+/* ── Buttons ── */
 .stButton > button {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.1);
     background: rgba(255,255,255,0.04);
     color: #e8e6e1;
-    padding: 16px 32px;
+    padding: 12px 24px;
     width: 100%;
     transition: all 0.2s ease;
 }
@@ -147,6 +165,39 @@ h1, h2, h3, h4 {
 .stButton > button[kind="primary"]:hover {
     box-shadow: 0 8px 25px rgba(236,72,153,0.6);
     transform: translateY(-2px);
+}
+
+/* ── Storage Specific Small Pink Buttons ── */
+.storage-container .stButton > button, 
+.storage-container div.stLinkButton > a,
+.storage-container div.stLinkButton a {
+    font-family: 'Syne', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%) !important;
+    color: white !important;
+    padding: 10px 14px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 10px rgba(236,72,153,0.25) !important;
+    line-height: 1 !important;
+}
+
+.storage-container .stButton > button:hover, 
+.storage-container div.stLinkButton > a:hover,
+.storage-container div.stLinkButton a:hover {
+    box-shadow: 0 6px 14px rgba(236,72,153,0.4) !important;
+    transform: translateY(-1px) !important;
+    color: white !important;
+    background: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%) !important;
 }
 
 /* ── Inputs ── */
@@ -474,9 +525,7 @@ AGENT_MODES = [
         "placeholder": "e.g. Find research papers about transformer attention mechanisms",
         "samples": [
             "Find me research paper on h2ogpt",
-            "Find me document on stock watchlist assistant",
-            "Find me a dataset for sales",
-            "Find me resume of jainil patel",
+            "Find me document on stock watchlist assistant"
         ],
     },
     {
@@ -487,9 +536,7 @@ AGENT_MODES = [
         "placeholder": "e.g. Why was my leave application rejected?",
         "samples": [
             "Why was my leave application rejected?",
-            "What is tech stack of ai sales analyst?",
-            "What are kpis of stock watchlist assistant?",
-            "How many sick leaves do i get?",
+            "What are features of stock watchlist assistant?",
         ],
     },
     {
@@ -500,9 +547,7 @@ AGENT_MODES = [
         "placeholder": "e.g. Find patients older than 50 with blood group A+ admitted under Emergency",
         "samples": [
             "Find patients older than 50 with blood group A+ admitted under Emergency",
-            "Show top 10 sales records from last quarter sorted by revenue",
-            "List all employees in the Engineering department hired after 2022",
-            "Count the number of transactions above $5000 per month",
+            "Show top 10 sales records from last quarter sorted by revenue"
         ],
     },
 ]
@@ -524,7 +569,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("↺ Refresh", use_container_width=True):
+    if st.button("↺ Refresh", width="stretch"):
         st.rerun()
 
     st.markdown("---")
@@ -535,7 +580,7 @@ with st.sidebar:
         col_a, col_b = st.columns(2)
         col_a.metric("Total Logs", len(df))
         col_b.metric("Recent", min(10, len(df)))
-        st.dataframe(df.tail(10), hide_index=True, use_container_width=True)
+        st.dataframe(df.tail(10), hide_index=True, width="stretch")
     else:
         st.markdown('<div style="font-family:\'DM Mono\',monospace;font-size:0.75rem;color:#4d4b5a;padding:10px 0;">No performance data found.</div>', unsafe_allow_html=True)
 
@@ -581,7 +626,7 @@ with tab1:
                 <div class="desc">{mode['desc']}</div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button(f"{'✓ Active' if is_active else 'Select'}", key=f"mode_{mode['id']}", use_container_width=True):
+            if st.button(f"{'✓ Active' if is_active else 'Select'}", key=f"mode_{mode['id']}", width="stretch"):
                 st.session_state.active_mode = mode["id"]
                 st.session_state.prefill_query = ""
                 st.rerun()
@@ -592,30 +637,43 @@ with tab1:
     active_mode = next(m for m in AGENT_MODES if m["id"] == st.session_state.active_mode)
     
     # ── Sample questions ──
-    st.markdown('<div style="font-family:\'DM Mono\',monospace;font-size:0.7rem;color:#4d4b5a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Quick Questions</div>', unsafe_allow_html=True)
+    
+    c1,c2 = st.columns([1,4], width="stretch")
+    with c1:
+        st.markdown('<div style="font-family:\'DM Mono\',monospace;font-size:1.2rem;color:#9996a8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">Quick Questions</div>', unsafe_allow_html=True)
 
-    chip_cols = st.columns(2)
-    for idx, sample in enumerate(active_mode["samples"]):
-        with chip_cols[idx % 2]:
-            if st.button(f"↗ {sample}", key=f"chip_{idx}", use_container_width=True):
-                st.session_state.prefill_query = sample
+    with c2:
+        chip_cols = st.columns(2)
+        for idx, sample in enumerate(active_mode["samples"]):
+            with chip_cols[idx % 2]:
+                if st.button(f"↗ {sample}", key=f"chip_{idx}", width="stretch"):
+                    st.session_state.prefill_query = sample
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Query input ──
-    query = st.text_area(
+    # # ── Query input ──
+    # query = st.text_area(
+    #     "Ask anything",
+    #     value=st.session_state.prefill_query,
+    #     placeholder=active_mode["placeholder"],
+    #     height=80,
+    #     label_visibility="collapsed",
+    # )
+
+    btn_col1, btn_col2, btn_col3 = st.columns([3,1,1])
+    with btn_col1:
+        query = st.text_area(
         "Ask anything",
         value=st.session_state.prefill_query,
         placeholder=active_mode["placeholder"],
-        height=110,
         label_visibility="collapsed",
+        width="stretch",
+        height=1
     )
-
-    btn_spacer1, btn_col1, btn_col2, btn_spacer2 = st.columns([3, 2, 2, 3])
-    with btn_col1:
-        ask_clicked = st.button("⬡  Run Query", type="primary", use_container_width=True)
     with btn_col2:
-        if st.button("✕  Clear", use_container_width=True):
+        ask_clicked = st.button("⬡  Run Query", type="primary", width="stretch")
+    with btn_col3:
+        if st.button("✕  Clear", width="stretch"):
             st.session_state.query_history = []
             st.session_state.prefill_query = ""
             st.rerun()
@@ -645,16 +703,17 @@ with tab1:
         st.markdown(f"""
         <div class="response-bubble">
             <div class="q-text">{latest.get('mode_icon','🔍')} {latest['query']}</div>
-            <div class="a-label">◈ Response</div>
-            <div class="a-text">{latest['response']}</div>
         </div>
         """, unsafe_allow_html=True)
-        # # Render response as proper markdown (handles bold, lists, code, etc.)
-        # st.markdown(
-        #     f"<div style='background:#18181e;border:1px solid rgba(255,255,255,0.06);border-left:3px solid #fb7185;border-radius:0 0 14px 14px;padding:20px 24px;margin-top:-2px;font-size:0.92rem;color:#e8e6e1;line-height:1.75;'>",
-        #     unsafe_allow_html=True
-        # )
-        # st.markdown(latest['response'])
+        response = latest['response']
+        if response.startswith("##"):
+            lines = response.split("\n")
+            title = lines[0].replace("##", "").strip()
+
+            st.title(title)
+            st.markdown("\n".join(lines[1:]))
+        else:
+            st.markdown(response)
         st.markdown("</div>", unsafe_allow_html=True)
         if len(st.session_state.query_history) > 1:
             st.markdown('<div style="font-family:\'Syne\',sans-serif;font-size:0.82rem;font-weight:700;color:#6b6878;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px;">Previous Queries</div>', unsafe_allow_html=True)
@@ -662,6 +721,7 @@ with tab1:
                 with st.expander(f"{item.get('mode_icon','🔍')}  {item['timestamp']}  ·  {item['query'][:60]}{'…' if len(item['query'])>60 else ''}"):
                     st.markdown(f"**Q:** {item['query']}")
                     st.markdown(item['response'])
+                    
     else:
         st.markdown("""
         <div style="text-align:center;padding:60px 0;border:1px dashed rgba(255,255,255,0.06);border-radius:14px;margin-top:16px;">
@@ -675,10 +735,10 @@ with tab1:
 # TAB 2 — STORAGE
 # ============================================================
 with tab2:
+    st.markdown('<div class="storage-container">', unsafe_allow_html=True)
     
 
     files_list, error = run_service(get_all_files_from_db)
-
     if error:
         st.error(f"Database error: {error}")
     elif files_list:
@@ -703,7 +763,6 @@ with tab2:
 
         search = st.text_input("Search files", placeholder="🔎  Filter files by name, type, or source…", label_visibility="collapsed")
         display_docs = [d for d in files_list if search.lower() in str(d).lower()] if search else files_list
-
         if not display_docs:
             st.markdown('<div style="text-align:center;padding:40px;color:#4d4b5a;font-size:0.85rem;">No files match your filter.</div>', unsafe_allow_html=True)
         else:
@@ -741,10 +800,67 @@ with tab2:
 
                             # with st.expander(" View Links"):
                             hosted = doc.get("hosted_link") or ""
-                            if hosted.startswith("http"):
-                                st.markdown(f" **URL:**  [Open File]({hosted})")
-                            else:
-                                st.caption("URL: `Not available`")
+                            
+                            action_c1, action_c2, action_c3, action_c4 = st.columns([1, 1, 1, 1])
+                            
+                            doc_id = doc.get('_id')
+                            ask_key = f"ask_{doc_id}"
+                            desc_key = f"desc_{doc_id}"
+                            del_key = f"del_{doc_id}"
+                            
+                            with action_c1:
+                                if hosted and hosted.startswith("http"):
+                                    st.link_button("📂 Open File", hosted, width="stretch", type="primary")
+                                else:
+                                    st.button("📂 Open File", key=f"disabled_{doc_id}", disabled=True, width="stretch", type="primary")
+                                    
+                            with action_c2:
+                                if st.button("💬 Ask File", key=ask_key, width="stretch", type="primary"):
+                                    st.session_state[f"show_ask_{doc_id}"] = not st.session_state.get(f"show_ask_{doc_id}", False)
+                                    st.rerun()
+
+                            with action_c3:
+                                if st.button("📝 Desc", key=desc_key, width="stretch", type="primary"):
+                                    st.session_state[f"show_desc_{doc_id}"] = not st.session_state.get(f"show_desc_{doc_id}", False)
+                                    st.rerun()
+                            
+                            with action_c4:
+                                if st.button("🗑️ Delete", key=del_key, width="stretch", type="primary"):
+                                    local_path = doc.get("local_path")
+                                    if local_path:
+                                        success, msg = delete_file(local_path)
+                                        if success:
+                                            st.toast("File deleted successfully!")
+                                        else:
+                                            st.error(f"Failed to delete: {msg}")
+                                    st.rerun()
+
+                            # File Description box
+                            if st.session_state.get(f"show_desc_{doc_id}", False):
+                                st.markdown("---")
+                                st.markdown(f"**Description of `{doc.get('file_name', 'File')}`**")
+                                with st.spinner("Analyzing content..."):
+                                    local_path = doc.get("local_path")
+                                    describe_fn = _get_describe_file_fn()
+                                    desc_text = describe_fn(local_path)
+                                    if desc_text:
+                                        st.info(desc_text)
+                                    else:
+                                        st.warning("Could not generate description for this file type.")
+
+                            # Ask File Input box
+                            if st.session_state.get(f"show_ask_{doc_id}", False):
+                                st.markdown("---")
+                                st.markdown(f"**Chat with `{doc.get('file_name', 'File')}`**")
+                                query = st.text_input("Ask a question about this file:", key=f"q_{doc_id}")
+                                if st.button("Submit", key=f"sub_{doc_id}", width="stretch", type="primary"):
+                                    if query:
+                                        with st.spinner("Analyzing document..."):
+                                            local_path = doc.get("local_path")
+                                            res = run_rag(local_path, query)
+                                            st.info(res.get("response", "No response found."))
+                                    else:
+                                        st.warning("Please enter a question.")
 
                 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     else:
@@ -755,6 +871,7 @@ with tab2:
             <div style="font-size:0.8rem;color:#4d4b5a;">Go to the Ingest tab to upload your first file.</div>
         </div>
         """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ============================================================
 # TAB 3 — INGESTION
@@ -780,11 +897,11 @@ with tab3:
 
         file = st.file_uploader(
             "Upload file",
-            type=["pdf", "txt", "csv"],
+            type=["pdf", "txt", "csv", "pptx", "docx", ".py"],
             label_visibility="collapsed",
         )
 
-        if st.button("⬆  Index File", type="primary", use_container_width=True):
+        if st.button("⬆  Index File", type="primary", width="stretch"):
             if file:
                 with st.spinner("Chunking, embedding, and indexing…"):
                     try:
@@ -821,6 +938,9 @@ with tab3:
                 <span style="background:#ef4444;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">PDF</span>
                 <span style="background:#10b981;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">CSV</span>
                 <span style="background:#f59e0b;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">TXT</span>
+                <span style="background:#800080;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">PPTX</span>
+                <span style="background:#000080;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">DOCX</span>
+                <span style="background:#777777;border-radius:6px;padding:3px 10px;font-size:0.72rem;color:white;font-family:'DM Mono',monospace;">PYTHON</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -840,7 +960,7 @@ with tab3:
             label_visibility="collapsed",
         )
 
-        if st.button("☁  Sync Source", use_container_width=True):
+        if st.button("☁  Sync Source", width="stretch"):
             if url_input.strip():
                 with st.spinner("Connecting to cloud source…"):
                     try:

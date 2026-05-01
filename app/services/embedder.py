@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import pandas as pd
 import pdfplumber
 from docx import Document as DocxDocument
@@ -36,6 +37,28 @@ SUPPORTED_OFFICE_EXT = {".pdf", ".docx", ".pptx", ".xlsx", ".xls"}
 SUPPORTED_DATA_EXT = {".csv"}
 ALL_SUPPORTED_EXT = SUPPORTED_TEXT_EXT | SUPPORTED_OFFICE_EXT | SUPPORTED_DATA_EXT
 
+# ---------------- CLEAN TEXT FUNCTION ---------------- #
+
+def clean_text(text: str) -> str:
+    if not text:
+        return ""
+
+    # Remove non-ASCII weird chars (keep basic punctuation)
+    text = re.sub(r'[^\x00-\x7F]+', ' ', text)
+
+    # Remove excessive symbols (but keep basic ones)
+    text = re.sub(r'[^\w\s.,:;!?()\[\]\'\"/-]', ' ', text)
+
+    # Replace multiple newlines/tabs with space
+    text = re.sub(r'\s+', ' ', text)
+
+    # Remove repeated punctuation
+    text = re.sub(r'([.,!?]){2,}', r'\1', text)
+
+    # Strip leading/trailing spaces
+    return text.strip()
+
+
 # ---------------- VECTOR STORE ---------------- #
 
 embeddings = OllamaEmbeddings(model="nomic-embed-text:latest")
@@ -47,14 +70,13 @@ vector_store = Chroma(
 )
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=800,       
+    chunk_size=800,
     chunk_overlap=150
 )
 
-# ---------------- TEXT EXTRACTION ---------------- #
 
 def extract_text(filepath: str) -> List[Document]:
-    filepath = os.path.abspath(filepath)  # always use absolute path in metadata
+    filepath = os.path.abspath(filepath)
     ext = os.path.splitext(filepath)[1].lower()
     docs = []
 
@@ -65,7 +87,9 @@ def extract_text(filepath: str) -> List[Document]:
                 with pdfplumber.open(filepath) as pdf:
                     for i, page in enumerate(pdf.pages):
                         text = page.extract_text() or ""
-                        if text.strip():
+                        text = clean_text(text)
+
+                        if text:
                             docs.append(Document(
                                 page_content=text,
                                 metadata={"file_path": filepath, "page": i, "type": "pdf"}
@@ -77,8 +101,9 @@ def extract_text(filepath: str) -> List[Document]:
         elif ext == ".docx":
             doc = DocxDocument(filepath)
             text = "\n".join([p.text for p in doc.paragraphs])
+            text = clean_text(text)
 
-            if text.strip():
+            if text:
                 docs.append(Document(
                     page_content=text,
                     metadata={"file_path": filepath, "type": "docx"}
@@ -89,7 +114,9 @@ def extract_text(filepath: str) -> List[Document]:
             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
 
-            if text.strip():
+            text = clean_text(text)
+
+            if text:
                 docs.append(Document(
                     page_content=text,
                     metadata={"file_path": filepath, "type": "text"}
@@ -99,21 +126,25 @@ def extract_text(filepath: str) -> List[Document]:
         elif ext == ".csv":
             df = pd.read_csv(filepath).head(5)
             text = df.to_string(index=False)
+            text = clean_text(text)
 
-            docs.append(Document(
-                page_content=text,
-                metadata={"file_path": filepath, "type": "csv", "rows": len(df)}
-            ))
+            if text:
+                docs.append(Document(
+                    page_content=text,
+                    metadata={"file_path": filepath, "type": "csv", "rows": len(df)}
+                ))
 
         # -------- EXCEL -------- #
         elif ext in {".xlsx", ".xls"}:
             df = pd.read_excel(filepath)
             text = df.to_string(index=False)
+            text = clean_text(text)
 
-            docs.append(Document(
-                page_content=text,
-                metadata={"file_path": filepath, "type": "excel", "rows": len(df)}
-            ))
+            if text:
+                docs.append(Document(
+                    page_content=text,
+                    metadata={"file_path": filepath, "type": "excel", "rows": len(df)}
+                ))
 
         # -------- PPTX -------- #
         elif ext == ".pptx":
@@ -123,7 +154,9 @@ def extract_text(filepath: str) -> List[Document]:
             for i, slide in enumerate(prs.slides):
                 for shape in slide.shapes:
                     if hasattr(shape, "text"):
-                        text_runs.append(f"[Slide {i+1}] {shape.text}")
+                        cleaned = clean_text(shape.text)
+                        if cleaned:
+                            text_runs.append(f"[Slide {i+1}] {cleaned}")
 
             if text_runs:
                 docs.append(Document(
